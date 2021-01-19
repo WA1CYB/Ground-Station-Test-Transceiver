@@ -1,0 +1,277 @@
+# Rambling install history to install gr 3.8.2 on a fresh 20.04 ubuntu install
+# Annotated with comments.  Numbers are from the history file
+# It seems every time I do this the premissions are not set to let me actually do any work
+# Eventually I go to my home folder and perform this:
+
+   17  chmod -R 777
+
+
+   24  snap refresh
+   25  sudo apt-get update
+   26  sudo apt-get upgrade
+
+   31  apt show snapd
+   32  snap list
+   33  sudo apt dist-upgrade
+ 
+# install python3-pip
+   47  sudo apt-get install python3-pip
+# install pybombs   
+   48  sudo pip3 install pybombs
+   49  pybombs auto-config
+   50  pybombs recipes add-defaults
+
+   54  mkdir prefix
+
+   58  pybombs prefix init ~/prefix/gr38 -R gnuradio-default
+# Run GRC and make sure it's version 3.8.2
+   59  cd prefix
+   61  cd gr38
+   63  source setup_env.sh 
+   64  gnuradio-companion
+# go back to pybombs and install several OOT modules that will be used after this Test Receiver Flowgraph
+   65  pybombs recipes list-repos
+
+   73  pybombs prefix init ~/prefix/gr38
+
+   75  pybombs  install gr-ham
+
+   77  pybombs  install gr-iio
+   78  pybombs  install airspyhf
+   79  pybombs  install airspy
+#                                             80  pybombs  install gr-fosphor   FAIL needs mpir
+   83  pybombs  install gr-satellites
+   84  pybombs  install gr-iridium
+   85  pybombs  install gr-soapy
+
+   87  pybombs  install hackrf
+
+   89  pybombs  install libperseus-sdr
+#                                            90  pybombs  install gqrx-digital  FAIL needs QT4
+#                                            91  pybombs  install pyqt4         FAIL needs QT4
+#                                            92  pybombs  install gr-csp        FAIL needs QT4
+   93  pybombs  install gr-sandia_utils
+   94  pybombs  install gr-timing_utils
+   95  pybombs  install gr-fhss_utils
+   96  pybombs  install gr-filerepeater
+   97  pybombs  install gr-predict-doppler
+   98  pybombs  install gr-gpredict-doppler
+#                                            99  pybombs  install gr-lora2      FAIL needs liquid          
+#                                           100  pybombs  install gr-lora       FAIL needs ??????
+  101  pybombs  install gr-pipe
+  102  cd ..
+  103  cd prefix
+  104  cd gr38/
+  105  source setup_env.sh 
+  106  gnuradio-companion 
+  
+       pybombs install gr-osmosdr
+       sudo ldconfig
+       volk_profile
+       pybombs install gqrx
+       sudo ldconfig
+# To get the various OOTs to run I copied all the rules to the rules.d folder
+  113  sudo cp uhd-usrp.rules /etc/udev/rules.d/uhd-usrp.rules
+  114  cd ..
+  115  cd src
+  116  cd rtl-sdr/
+
+  118  sudo cp rtl-sdr.rules /etc/udev/rules.d/rtl-sdr.rules
+  119  cd ..
+  120  cd libperseus-sdr/
+
+  122  sudo cp 95-perseus.rules /etc/udev/rules.d/95-perseus.rules
+  123  cd ..
+  124  cd airspyhf/tools/
+
+  127  sudo cp 52-airspyhf.rules /etc/udev/rules.d/52-airspyhf.rules
+  128  cd ..
+  129  cd osmo-sdr/
+  130  cd software/libosmosdr/
+
+  133  sudo cp osmosdr.rules /etc/udev/rules.d/osmosdr.rules
+  134  cd ..
+  135  cd hackrf/host/
+
+  137  cd libhackrf/
+
+  139  sudo cp 53-hackrf.rules /etc/udev/rules.d/53-hackrf.rules
+  140  cd ..
+# Now to load the rules and start using them   
+  141  sudo udevadm control --reload-rules
+  142  sudo udevadm trigger
+# This command shouldn't be necessary, but it can't hurt !
+  146  sudo ldconfig
+# During this GRC session I loaded packet_rx.grc . It is located in folder: src, gnuradio, gr-digital, examples, packet
+# load it and click on Generate the flow graph. Then click on Reload Blocks and check that it is installed: (no module specified) Packet Operators, Packet Rx
+  148  cd ~/prefix/gr38/
+  149  source setup_env.sh 
+  150  gnuradio-companion 
+# This is used to monitor system resources
+  175  sudo apt-get install gnome-system-monitor
+  176  gnome-system-monitor
+  177  ls
+  178  ls -al
+# Somehow I lost permissions again, I am trying to avoid recursively changing all permissions
+# Hopefully you will not have this problem 
+  180  sudo echo $USER
+
+  183  sudo chown $USER:$USER $HOME
+
+  185  ls -al
+  186  cd ..
+
+  188  ls -al
+  189  sudo chown $USER:$USER $HOME
+
+  194  cd ..
+  195  sudo chown $USER:$USER .
+  196  ls -al
+  197  cd home
+  198  ls -al
+
+
+  217  sudo chmod 777 ./ -R
+# I looked for iio installed, but couldn't find it, went to Analog Devices web site for install info  
+  218  iio_info -s
+
+  220  sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
+  221  sudo apt install doxygen
+  222  sudo apt install libusb-1.0-0-dev
+  223  sudo apt install libavahi-common-dev libavahi-client-dev
+  224  git clone https://github.com/analogdevicesinc/libad9361-iio.git
+  225  cd libad9361-iio
+  226  cmake .
+  227  make
+  228  sudo apt install bison flex cmake git libgmp-dev
+  229  sudo apt install liborc-dev
+  230  sudo ldconfig
+  231  iio_info -s
+  232  cmake .
+  233  cd ..
+  234  gitbranch: upgrade-3.8
+  235  cd gr38/
+  236  source setup_env.sh 
+  237  iio_info -s
+  238  source setup_env.sh 
+  239  iio_info -s
+  240  iio_attr -a -d
+
+  242  mkdir build
+  243  cd build
+  244  cmake ./
+  245  cd ..
+  246  ./configure
+  247  cd build
+  248  make
+  249  make ./
+  250  cd ..
+  251  ls
+  252  ls -al
+  253  cd src
+  254  ls -al
+# Wiping out the OLD pybombs gr-iio install to allow the new one from source
+  258  rename gr-iio gr-iio_OLD
+  259  git clone -b upgrade-3.8 https://github.com/analogdevicesinc/gr-iio.git
+  260  cmake .
+  261  cd gr-iio
+  262  cmake .
+  263  cd ..
+  264  source setup_env.sh 
+  265  cd src
+  266  cd gr-iio
+  267  cmake .
+  268  cd ..
+  269  git clone https://github.com/analogdevicesinc/libad9361-iio.git
+  270  cd libad9361-iio/
+  271  cmake .
+  272  cd ..
+  273  cd src
+
+  275  ls -al
+  276  sudo apt install libxml2 libxml2-dev bison flex cmake git libaio-dev libboost-all-dev
+  277  sudo apt install libusb-1.0-0-dev
+  278  sudo apt install libavahi-common-dev libavahi-client-dev
+  279  git clone https://github.com/analogdevicesinc/libiio.git
+  280  cd libiio
+  281  cmake .
+  282  make
+  283  sudo make install
+  284  cd ..
+  285  git clone https://github.com/analogdevicesinc/libad9361-iio.git
+  286  cd libad9361-iio
+  287  cmake .
+  288  make
+  289  sudo make install
+  290  cd ..
+  291  sudo apt install bison flex cmake git libgmp-dev
+  292  sudo apt install swig
+  293  sudo apt install liborc-dev
+  294  git clone -b upgrade-3.8 https://github.com/analogdevicesinc/gr-iio.git
+  295  cd gr-iio
+  296  cmake .
+  297  make
+  298  sudo make install
+  299  cd ..
+  300  sudo ldconfig
+  301  cd ..
+# And now to see that it works !
+  304  source setup_env.sh 
+  305  gnuradio-companion 
+# looking for usb context to put in flowgraph for pluto instead of ip context
+  310  iio_attr -a -d
+  311  cd ~/prefix/gr38/
+  312  source setup_env.sh 
+  313  gnuradio-companion 
+ 
+  328  sudo apt update
+  329  sudo apt upgrade
+  330  cd ..
+  331  sudo apt install cmake git libboost-dev libpcap-dev libboost-thread-dev libboost-system-dev
+  332  git clone https://github.com/aguinet/usbtop.git
+  333  cd usbtop
+  334  mkdir _build && cd _build 
+  335  cmake -DCMAKE_BUILD_TYPE=Release ..
+  336  make
+  337  sudo make install
+  338  sudo ldconfig
+  339  sudo modprobe usbmon
+# installing usbtop allows ~realtime USB flow rates. This lets me know when the USB bus is maxed out 
+  340  sudo usbtop
+  341  iio_attr -a -d
+  342  cd ~/prefix/gr38/
+  343  gnuradio-companion 
+ 
+  356  sudo apt-get update
+  357  sudo apt-get install libdvdnav4 libdvdread4 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly libdvd-pkg
+  358  sudo apt-get install ubuntu-restricted-extras
+# Typical set of commands to run the ADALM Pluto flowgraph
+  361  cd ~/prefix/gr38/
+  362  source setup_env.sh 
+  363  iio_attr -a -d
+  364  gnuradio-companion 
+  
+# Now to look at the UHD version of the Ground Station Transceiver
+  370  cd ~/prefix/gr38/
+  371  source setup_env.sh 
+  372  iio_attr -a -d
+  373  uhd_find_devices
+  374  /home/ray/prefix/gr38/lib/uhd/utils/uhd_images_downloader.py
+  375  uhd_find_devices
+  378  uhd_usrp_probe
+  379  gnuradio-companion 
+# Now to figure the maximum rate of the Ettus B205mini
+# Increased the sample rate untill USB bps did not increase
+  381  sudo usbtop
+  382  sudo modprobe usbmon
+  383  sudo usbtop
+  384  ls -al
+  385  sudo usbtop
+  386  cd ..
+  387  source setup_env.sh 
+  388  sudo usbtop
+  389  usbtop
+  390  cd ~/prefix/gr38/
+  391  source setup_env.sh 
+  392  gnuradio-companion 
+  393  history > install_history.txt
